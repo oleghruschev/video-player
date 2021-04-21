@@ -21,6 +21,7 @@ const Player = () => {
   const progressBarRef = useRef();
 
   const [isLoading, setLoading] = useState(true);
+  const [bufferWidth, setBufferWidth] = useState(0);
 
   const dispatch = useDispatch();
 
@@ -32,6 +33,14 @@ const Player = () => {
   useEffect(() => {
     const handleLoad = () => {
       setLoading(false);
+
+      videoRef.current.addEventListener("progress", (e) => {
+        const buffered =
+          Math.floor(videoRef.current.buffered.end(0)) /
+          Math.floor(videoRef.current.duration);
+
+        setBufferWidth(buffered * progressBarRef.current.clientWidth);
+      });
     };
 
     const handleTimeUpdate = () => {
@@ -122,9 +131,15 @@ const Player = () => {
               ref={progressBarRef}
             >
               <div
-                className="progress-bar"
+                className="progress-bar "
                 style={{
                   width: `${(currentTime / videoRef.current.duration) * 100}%`,
+                }}
+              />
+              <div
+                className="buffer-bar"
+                style={{
+                  width: `${bufferWidth}px`,
                 }}
               />
             </div>
