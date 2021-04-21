@@ -2,14 +2,40 @@
   padding: 0 16px;
 }
 
-.video {
-  width: 100%;
+.fullscreen {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  flex-flow: column;
+  justify-content: center;
+  width: 100vw !important;
+  padding: 0;
+  background: #000;
 }
 
-.controls {
+.fullscreen .controls {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  padding: 0 16px;
+  color: #fff;
+}
+
+.video {
+  width: 100%;
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.controls-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  margin-bottom: 12px;
 }
 
 .progress-bar-wrapper {
@@ -18,12 +44,14 @@
   margin: 0 12px;
   background: lightgray;
   cursor: pointer;
+  border-radius: 8px;
 }
 
 .progress-bar {
   position: relative;
   height: inherit;
   background: lightblue;
+  border-radius: 8px;
 }
 
 .progress-bar::after {
@@ -33,20 +61,28 @@
   width: 8px;
   height: inherit;
   background: lightskyblue;
+  border-radius: 8px;
 }
 
 .time {
-  margin: 0 12px;
   white-space: nowrap;
 }
 
 .control-btn {
+  max-width: 54px;
   cursor: pointer;
+  background: lightslategray;
+  color: white;
 }
 
 .play-btn {
-  min-width: 60px;
-  margin-right: 12px;
+  margin-right: 6px;
+}
+
+@media (min-width: 540px) {
+  .time {
+    margin-right: 56px;
+  }
 }
 
 @media (min-width: 768px) {

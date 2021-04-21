@@ -1,8 +1,8 @@
 export const formatTime = (time) => {
   if (time === undefined) return;
 
-  const m = Math.floor(time / 60);
-  const s = Math.floor(time % 60);
+  const minutes = Math.floor(time / 60);
+  const seconds = Math.floor(time % 60);
 
-  return `${m}:${s < 10 ? `0${s}` : s}`;
+  return `${minutes}:${seconds < 10 ? `0${seconds}` : seconds}`;
 };

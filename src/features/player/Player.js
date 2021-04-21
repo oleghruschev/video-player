@@ -1,19 +1,24 @@
 import { useEffect, useRef, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
+import cx from "classnames";
 import {
   getPlayState,
   getCurrentTime,
+  getFullScreenState,
+  getMuteState,
   play,
   pause,
   setCurrentTime,
+  setFullScreen,
+  setMute,
 } from "./playerSlice";
 import { formatTime } from "./utils";
 import "./Player.css";
+import * as Icons from "../../assets/icons";
 
 const Player = () => {
   const videoRef = useRef();
   const progressBarRef = useRef();
-  const playerRef = useRef();
 
   const [isLoading, setLoading] = useState(true);
 
@@ -21,6 +26,8 @@ const Player = () => {
 
   const isPlay = useSelector(getPlayState);
   const currentTime = useSelector(getCurrentTime);
+  const isFullScreen = useSelector(getFullScreenState);
+  const isMute = useSelector(getMuteState);
 
   useEffect(() => {
     const handleLoad = () => {
@@ -28,8 +35,6 @@ const Player = () => {
     };
 
     const handleTimeUpdate = () => {
-      if (!videoRef) return;
-
       dispatch(setCurrentTime(videoRef.current?.currentTime));
     };
 
@@ -44,6 +49,10 @@ const Player = () => {
       if (e.code === "ArrowRight") {
         handleNextPart();
       }
+
+      if (e.code === "Escape") {
+        dispatch(setFullScreen(false));
+      }
     };
 
     videoRef.current.addEventListener("canplay", handleLoad);
@@ -57,6 +66,10 @@ const Player = () => {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    videoRef.current.muted = isMute;
+  }, [isMute]);
 
   function togglePlay() {
     if (videoRef.current.paused) {
@@ -77,55 +90,65 @@ const Player = () => {
   }
 
   function handleMute() {
-    videoRef.current.muted = !videoRef.current.muted;
+    dispatch(setMute(!isMute));
   }
 
-  const handleClickProgressBar = (e) => {
+  function handleClickProgressBar(e) {
     const time =
       (e.pageX - progressBarRef.current.offsetLeft) /
       progressBarRef.current.clientWidth;
 
     videoRef.current.currentTime = time * videoRef.current.duration;
-  };
+  }
+
+  function toggleFullScreen() {
+    dispatch(setFullScreen(!isFullScreen));
+  }
 
   return (
-    <div className="player-wrapper" ref={playerRef}>
+    <div className={cx("player-wrapper", { fullscreen: isFullScreen })}>
       <video className="video" ref={videoRef} onClick={togglePlay}>
         <source src="/videos/sample-mp4-file.mp4" type="video/mp4" />
       </video>
       {!isLoading && (
         <div className="controls">
-          <button className="control-btn play-btn" onClick={togglePlay}>
-            {isPlay ? "Pause" : "Play"}
-          </button>
-          <button onClick={handlePrevPart} className="control-btn">
-            {"<<"}
-          </button>
-          <div
-            className="progress-bar-wrapper"
-            onClick={handleClickProgressBar}
-            ref={progressBarRef}
-          >
+          <div className="controls-row">
+            <button onClick={handlePrevPart} className="control-btn">
+              {"<<"}
+            </button>
             <div
-              className="progress-bar"
-              style={{
-                width: `${
-                  (videoRef.current.currentTime / videoRef.current.duration) *
-                  100
-                }%`,
-              }}
-            />
+              className="progress-bar-wrapper"
+              onClick={handleClickProgressBar}
+              ref={progressBarRef}
+            >
+              <div
+                className="progress-bar"
+                style={{
+                  width: `${(currentTime / videoRef.current.duration) * 100}%`,
+                }}
+              />
+            </div>
+            <button onClick={handleNextPart} className="control-btn">
+              {">>"}
+            </button>
           </div>
-          <button onClick={handleNextPart} className="control-btn">
-            {">>"}
-          </button>
-          <div className="time">
-            <span>{formatTime(currentTime)}</span> /
-            <span>{formatTime(videoRef.current.duration)}</span>
+          <div className="controls-row">
+            <div>
+              <button className="control-btn play-btn" onClick={togglePlay}>
+                {isPlay ? <Icons.Pause /> : <Icons.Play />}
+              </button>
+              <button onClick={handleMute} className="control-btn">
+                {isMute ? <Icons.Mute /> : <Icons.Dynamic />}
+              </button>
+            </div>
+            <div className="time">
+              <span>{formatTime(currentTime)}</span> /
+              <span>{formatTime(videoRef.current.duration)}</span>
+            </div>
+            <button onClick={toggleFullScreen} className="control-btn">
+              {isFullScreen ? <Icons.Minimaize /> : <Icons.Expand />}
+            </button>
           </div>
-          <button onClick={handleMute} className="control-btn" active>
-            Mute
-          </button>
         </div>
       )}
     </div>
